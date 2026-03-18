@@ -201,7 +201,7 @@ print(results)
 - **No Default**: 88.3% of loans (225,565 samples)
 - **Default**: 11.7% of loans (29,782 samples)
 
-### Important Features (by importance)
+### Important Features
 1. **CreditScore** - Strongest predictor of default (negative correlation: -0.45)
 2. **DTIRatio** - Debt-to-income ratio significantly impacts default (positive correlation: +0.38)
 3. **Income** - Higher income correlates with lower default risk (negative correlation: -0.32)
@@ -231,37 +231,6 @@ print(results)
 - Single borrower predictions
 - Batch predictions from DataFrame
 - Probability estimates
-
-## Performance Optimization Tips
-
-### Improving Recall (Catching More Defaults)
-```python
-# Adjust decision threshold
-y_pred_proba = model.predict_proba(X_test)[:, 1]
-y_pred_adjusted = (y_pred_proba > 0.3).astype(int)  # Lower threshold
-```
-
-### Handling Class Imbalance
-```python
-from imblearn.over_sampling import SMOTE
-
-smote = SMOTE(random_state=42)
-X_train_balanced, y_train_balanced = smote.fit_resample(X_train, y_train)
-```
-
-### Hyperparameter Tuning
-```python
-from sklearn.model_selection import GridSearchCV
-
-param_grid = {
-    'n_estimators': [100, 200],
-    'max_depth': [10, 20, None]
-}
-
-grid_search = GridSearchCV(model, param_grid, cv=5)
-grid_search.fit(X_train, y_train)
-```
-
 
 ## References
 
