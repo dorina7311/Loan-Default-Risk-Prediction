@@ -1,0 +1,23 @@
+============================================================
+MODEL EVALUATION REPORT - BestModel
+============================================================
+
+Accuracy:  0.8873
+Precision: 0.6566
+Recall:    0.0515
+F1-Score:  0.0956
+ROC-AUC:   0.7567
+
+Confusion Matrix:
+[[45011   159]
+ [ 5596   304]]
+
+Classification Report:
+              precision    recall  f1-score   support
+
+  No Default       0.89      1.00      0.94     45170
+     Default       0.66      0.05      0.10      5900
+
+    accuracy                           0.89     51070
+   macro avg       0.77      0.52      0.52     51070
+weighted avg       0.86      0.89      0.84     51070
