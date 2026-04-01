@@ -94,7 +94,8 @@ class LoanDefaultPredictor:
             probability = self.model.predict_proba(features_array)[0]
             prob_no_default = probability[0]
             prob_default = probability[1]
-        except:
+        except (AttributeError, IndexError) as e:
+            logger.warning(f"Could not get prediction probability: {str(e)}")
             prob_no_default = None
             prob_default = None
         
@@ -149,7 +150,8 @@ class LoanDefaultPredictor:
         # Get probabilities
         try:
             probabilities = self.model.predict_proba(features_array)
-        except:
+        except (AttributeError, IndexError) as e:
+            logger.warning(f"Could not get batch prediction probabilities: {str(e)}")
             probabilities = None
         
         results = []

@@ -60,7 +60,8 @@ def format_currency(value: int | float) -> str:
         return "$0.00"
     try:
         return f"${value:,.2f}"
-    except:
+    except (ValueError, TypeError) as e:
+        logger.warning(f"Could not format currency: {str(e)}")
         return "$0.00"
 
 def format_percentage(value: float) -> str:
@@ -71,7 +72,8 @@ def format_percentage(value: float) -> str:
         # Cap at 100% for display
         capped_value = min(float(value), 1.0)
         return f"{capped_value:.1%}"
-    except:
+    except (ValueError, TypeError) as e:
+        logger.warning(f"Could not format percentage: {str(e)}")
         return "0.0%"
 
 def format_decimal(value: float, places: int = 2) -> str:
@@ -80,7 +82,8 @@ def format_decimal(value: float, places: int = 2) -> str:
         return "0." + "0" * places
     try:
         return f"{float(value):.{places}f}"
-    except:
+    except (ValueError, TypeError) as e:
+        logger.warning(f"Could not format decimal: {str(e)}")
         return "0." + "0" * places
 
 def format_count(value: int) -> str:
@@ -89,7 +92,8 @@ def format_count(value: int) -> str:
         return "0"
     try:
         return f"{int(value):,}"
-    except:
+    except (ValueError, TypeError) as e:
+        logger.warning(f"Could not format count: {str(e)}")
         return "0"
 
 def format_probability_confidence(prob: float) -> str:
@@ -109,6 +113,7 @@ def format_probability_confidence(prob: float) -> str:
             return f"Low ({p:.1%})"
         else:
             return f"Very Low ({p:.1%})"
-    except:
+    except (ValueError, TypeError) as e:
+        logger.warning(f"Could not format probability confidence: {str(e)}")
         return "Unknown"
 

@@ -114,7 +114,7 @@ def render_borrower_summary(features: dict):
                 try:
                     idx = cat_config['options'].index(value)
                     display_value = cat_config['labels'][idx]
-                except:
+                except (ValueError, IndexError, KeyError) as e:
                     display_value = str(value)
             else:
                 display_value = str(value)
