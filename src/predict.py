@@ -18,6 +18,13 @@ class LoanDefaultPredictor:
     """
     Class to make predictions on new borrower data.
     """
+
+    REQUIRED_FEATURES = [
+        'Age', 'Income', 'LoanAmount', 'CreditScore', 'MonthsEmployed',
+        'NumCreditLines', 'InterestRate', 'LoanTerm', 'DTIRatio',
+        'Education', 'EmploymentType', 'MaritalStatus', 'HasMortgage',
+        'HasDependents', 'LoanPurpose', 'HasCoSigner'
+    ]
     
     def __init__(self, model_path):
         """
@@ -57,14 +64,26 @@ class LoanDefaultPredictor:
         Returns:
             dict: Prediction result with probability
         """
-        # Convert to numpy array if dict
+        # Convert input to DataFrame and enforce required columns
         if isinstance(features, dict):
-            features_array = np.array([list(features.values())])
+            feature_df = pd.DataFrame([features])
         else:
-            features_array = np.array([features]) if len(features.shape) == 1 else np.array(features)
-        
-        # Scale if scaler is available
+            # array-like from form input: assume values correspond to required fields order
+            feature_df = pd.DataFrame([features], columns=self.REQUIRED_FEATURES) if len(np.array(features).shape) == 1 else pd.DataFrame(features)
+
+        feature_df = feature_df.reindex(columns=self.REQUIRED_FEATURES)
+        feature_df = feature_df.fillna(0)
+        features_array = feature_df.values
+
+        # StandardScaler expects the same number of features as during training
         if self.scaler is not None:
+            expected_features = getattr(self.scaler, 'n_features_in_', None)
+            if expected_features is not None and features_array.shape[1] != expected_features:
+                raise ValueError(
+                    f"Model expects {expected_features} features, but input has {features_array.shape[1]}. "
+                    "Please ensure your dataset has the required columns: "
+                    f"{', '.join(self.REQUIRED_FEATURES)}"
+                )
             features_array = self.scaler.transform(features_array)
         
         # Make prediction
@@ -99,12 +118,29 @@ class LoanDefaultPredictor:
             pd.DataFrame: Predictions for all borrowers
         """
         if isinstance(feature_list, pd.DataFrame):
-            features_array = feature_list.values
+            feature_df = feature_list.copy()
         else:
-            features_array = np.array([list(f.values()) for f in feature_list])
-        
-        # Scale if scaler is available
+            feature_df = pd.DataFrame(feature_list)
+
+        # Enforce required order and drop irrelevant columns
+        missing_cols = [c for c in self.REQUIRED_FEATURES if c not in feature_df.columns]
+        if missing_cols:
+            logger.warning(f"Missing columns in batch input, filling with zeros: {missing_cols}")
+
+        feature_df = feature_df.reindex(columns=self.REQUIRED_FEATURES)
+        feature_df = feature_df.fillna(0)
+
+        features_array = feature_df.values
+
+        # StandardScaler expects the same number of features as during training
         if self.scaler is not None:
+            expected_features = getattr(self.scaler, 'n_features_in_', None)
+            if expected_features is not None and features_array.shape[1] != expected_features:
+                raise ValueError(
+                    f"Model expects {expected_features} features, but input has {features_array.shape[1]}. "
+                    "Please ensure your dataset has the required columns: "
+                    f"{', '.join(self.REQUIRED_FEATURES)}"
+                )
             features_array = self.scaler.transform(features_array)
         
         # Make predictions
